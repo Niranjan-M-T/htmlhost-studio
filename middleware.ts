@@ -59,11 +59,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 3. Check Session Cookie
+  // 3. Bypass redirects during build-time static generation / pre-rendering
+  const userAgent = request.headers.get('user-agent') || '';
+  if (userAgent.includes('Next.jsPrerender') || request.headers.has('x-middleware-preflight')) {
+    return NextResponse.next();
+  }
+
+  // 4. Check Session Cookie
   const cookieToken = request.cookies.get(COOKIE_NAME)?.value;
   const hasValidSession = cookieToken ? await isValidSession(cookieToken) : false;
 
-  // 4. Check API Key for AI Agents
+  // 5. Check API Key for AI Agents
   const apiKeyHeader = request.headers.get('x-api-key');
   const authHeader = request.headers.get('authorization');
 
