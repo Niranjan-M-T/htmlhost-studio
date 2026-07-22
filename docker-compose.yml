@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  htmlhost-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: htmlhost-studio
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    volumes:
+      - htmlhost_data:/app/data
+
+volumes:
+  htmlhost_data:
+    driver: local
