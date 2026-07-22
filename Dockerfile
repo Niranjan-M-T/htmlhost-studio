@@ -1,24 +1,21 @@
-# Production Multi-Stage Dockerfile for Coolify Deployment
+# Standard Production Dockerfile for Coolify & Next.js Standalone Mode
 FROM node:20-alpine AS base
 
-# Step 1. Install dependencies (force development mode so all build packages are installed)
+# Step 1. Install dependencies
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-ENV NODE_ENV=development
-
 COPY package.json package-lock.json ./
-RUN npm ci --include=dev
+RUN npm ci
 
 # Step 2. Build Next.js application
 FROM base AS builder
 WORKDIR /app
-ENV NODE_ENV=development
-ENV NEXT_TELEMETRY_DISABLED=1
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
 
