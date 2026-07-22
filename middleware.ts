@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const COOKIE_NAME = 'htmlhost_session';
-const AGENT_API_KEY = process.env.AGENT_API_KEY || 'studio_agent_sec_8849204829';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'htmlhost_studio_secret_session_key_9948201';
+const AGENT_API_KEY = process.env.AGENT_API_KEY || 'CHANGE_THIS_AGENT_API_KEY_IN_COOLIFY';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'CHANGE_THIS_SESSION_SECRET_IN_COOLIFY';
 
 // Edge-compatible HMAC token verification for Next.js Middleware
 async function isValidSession(token: string): Promise<boolean> {
@@ -23,7 +23,6 @@ async function isValidSession(token: string): Promise<boolean> {
 
     const sigBuffer = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(base64Payload));
     
-    // Convert arraybuffer to base64url
     const bytes = new Uint8Array(sigBuffer);
     let binary = '';
     for (let i = 0; i < bytes.byteLength; i++) {
@@ -36,7 +35,6 @@ async function isValidSession(token: string): Promise<boolean> {
 
     if (signature !== expectedSig) return false;
 
-    // Check expiration
     const jsonStr = atob(base64Payload.replace(/-/g, '+').replace(/_/g, '/'));
     const data = JSON.parse(jsonStr);
 
@@ -103,12 +101,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

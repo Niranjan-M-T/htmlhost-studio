@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Default Allowed Accounts
+// Default Allowed Accounts (can be overridden via ALLOWED_EMAILS env var)
 const DEFAULT_ALLOWED_EMAILS = [
   'niranjanmtheroth@gmail.com',
   'studiohappens26@gmail.com',
@@ -13,7 +13,6 @@ const TARGET_PASSWORD_PLAIN = 'Studiohappensmsme';
 // Standard salt for password hashing
 const HARDCODED_SALT = 'htmlhost_studio_secure_salt_2026';
 
-// Pre-computed PBKDF2 hash of the password with salt (100,000 iterations, 64-byte key)
 function computeHash(password: string): string {
   return crypto
     .pbkdf2Sync(password, HARDCODED_SALT, 100000, 64, 'sha512')
@@ -22,9 +21,9 @@ function computeHash(password: string): string {
 
 const PASSWORD_HASH = computeHash(TARGET_PASSWORD_PLAIN);
 
-// Secret key for HMAC signing session tokens
-const SESSION_SECRET = process.env.SESSION_SECRET || 'htmlhost_studio_secret_session_key_9948201';
-const AGENT_API_KEY = process.env.AGENT_API_KEY || 'studio_agent_sec_8849204829';
+// Secret keys loaded from Environment Variables in Coolify
+const SESSION_SECRET = process.env.SESSION_SECRET || 'CHANGE_THIS_SESSION_SECRET_IN_COOLIFY';
+const AGENT_API_KEY = process.env.AGENT_API_KEY || 'CHANGE_THIS_AGENT_API_KEY_IN_COOLIFY';
 
 export const COOKIE_NAME = 'htmlhost_session';
 
@@ -49,10 +48,8 @@ export function verifyCredentials(email: string, passwordPlain: string): boolean
     return false;
   }
 
-  // Compute hash of input password
   const inputHash = computeHash(passwordPlain);
 
-  // Timing-safe comparison to prevent side-channel timing attacks
   const bufA = Buffer.from(inputHash, 'hex');
   const bufB = Buffer.from(PASSWORD_HASH, 'hex');
 
@@ -61,7 +58,7 @@ export function verifyCredentials(email: string, passwordPlain: string): boolean
 }
 
 export function createSessionToken(email: string): string {
-  const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+  const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
   const payload = JSON.stringify({ email: email.toLowerCase(), expiresAt });
   const base64Payload = Buffer.from(payload).toString('base64url');
 
@@ -83,7 +80,6 @@ export function verifySessionToken(token: string): { email: string } | null {
       .update(base64Payload)
       .digest('base64url');
 
-    // Timing-safe signature check
     const bufA = Buffer.from(signature);
     const bufB = Buffer.from(expectedSig);
     if (bufA.length !== bufB.length || !crypto.timingSafeEqual(bufA, bufB)) {
@@ -104,13 +100,11 @@ export function verifySessionToken(token: string): { email: string } | null {
 }
 
 export function isAuthorizedRequest(request: NextRequest): boolean {
-  // 1. Check Session Cookie
   const cookieToken = request.cookies.get(COOKIE_NAME)?.value;
   if (cookieToken && verifySessionToken(cookieToken)) {
     return true;
   }
 
-  // 2. Check Agent API Key header (X-API-Key or Authorization Bearer)
   const apiKeyHeader = request.headers.get('x-api-key');
   const authHeader = request.headers.get('authorization');
 
