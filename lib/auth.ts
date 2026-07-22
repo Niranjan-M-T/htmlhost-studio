@@ -1,16 +1,12 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Default Allowed Accounts (can be overridden via ALLOWED_EMAILS env var)
 const DEFAULT_ALLOWED_EMAILS = [
   'niranjanmtheroth@gmail.com',
   'studiohappens26@gmail.com',
 ];
 
-// Target password: Studiohappensmsme
 const TARGET_PASSWORD_PLAIN = 'Studiohappensmsme';
-
-// Standard salt for password hashing
 const HARDCODED_SALT = 'htmlhost_studio_secure_salt_2026';
 
 function computeHash(password: string): string {
@@ -21,9 +17,8 @@ function computeHash(password: string): string {
 
 const PASSWORD_HASH = computeHash(TARGET_PASSWORD_PLAIN);
 
-// Secret keys loaded from Environment Variables in Coolify
-const SESSION_SECRET = process.env.SESSION_SECRET || 'CHANGE_THIS_SESSION_SECRET_IN_COOLIFY';
-const AGENT_API_KEY = process.env.AGENT_API_KEY || 'CHANGE_THIS_AGENT_API_KEY_IN_COOLIFY';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'htmlhost_studio_secret_session_key_9948201';
+const AGENT_API_KEY = process.env.AGENT_API_KEY || 'studio_agent_sec_8849204829';
 
 export const COOKIE_NAME = 'htmlhost_session';
 

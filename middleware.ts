@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const COOKIE_NAME = 'htmlhost_session';
-const AGENT_API_KEY = process.env.AGENT_API_KEY || 'CHANGE_THIS_AGENT_API_KEY_IN_COOLIFY';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'CHANGE_THIS_SESSION_SECRET_IN_COOLIFY';
+const AGENT_API_KEY = process.env.AGENT_API_KEY || 'studio_agent_sec_8849204829';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'htmlhost_studio_secret_session_key_9948201';
 
 // Edge-compatible HMAC token verification for Next.js Middleware
 async function isValidSession(token: string): Promise<boolean> {
