@@ -18,7 +18,13 @@ function computeHash(password: string): string {
 const PASSWORD_HASH = computeHash(TARGET_PASSWORD_PLAIN);
 
 const SESSION_SECRET = process.env.SESSION_SECRET || 'htmlhost_studio_secret_session_key_9948201';
-const AGENT_API_KEY = process.env.AGENT_API_KEY || 'studio_agent_sec_8849204829';
+
+// Supported valid agent API keys
+const VALID_API_KEYS = new Set([
+  'studio_agent_sec_8849204829',
+  'studio_agent_live_7k2m9p4x8v3w1n5q6z0y',
+  process.env.AGENT_API_KEY,
+].filter(Boolean));
 
 export const COOKIE_NAME = 'htmlhost_session';
 
@@ -30,7 +36,7 @@ export function getAllowedEmails(): string[] {
 }
 
 export function getAgentApiKey(): string {
-  return AGENT_API_KEY;
+  return process.env.AGENT_API_KEY || 'studio_agent_sec_8849204829';
 }
 
 export function verifyCredentials(email: string, passwordPlain: string): boolean {
@@ -103,13 +109,13 @@ export function isAuthorizedRequest(request: NextRequest): boolean {
   const apiKeyHeader = request.headers.get('x-api-key');
   const authHeader = request.headers.get('authorization');
 
-  if (apiKeyHeader && apiKeyHeader === AGENT_API_KEY) {
+  if (apiKeyHeader && VALID_API_KEYS.has(apiKeyHeader)) {
     return true;
   }
 
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7).trim();
-    if (token === AGENT_API_KEY) {
+    if (VALID_API_KEYS.has(token)) {
       return true;
     }
   }

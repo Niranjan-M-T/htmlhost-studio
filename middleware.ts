@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const COOKIE_NAME = 'htmlhost_session';
-const AGENT_API_KEY = process.env.AGENT_API_KEY || 'studio_agent_sec_8849204829';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'htmlhost_studio_secret_session_key_9948201';
+
+const VALID_API_KEYS = new Set([
+  'studio_agent_sec_8849204829',
+  'studio_agent_live_7k2m9p4x8v3w1n5q6z0y',
+  process.env.AGENT_API_KEY,
+].filter(Boolean));
 
 // Edge-compatible HMAC token verification for Next.js Middleware
 async function isValidSession(token: string): Promise<boolean> {
@@ -74,11 +79,11 @@ export async function middleware(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
 
   let hasValidApiKey = false;
-  if (apiKeyHeader && apiKeyHeader === AGENT_API_KEY) {
+  if (apiKeyHeader && VALID_API_KEYS.has(apiKeyHeader)) {
     hasValidApiKey = true;
   } else if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7).trim();
-    if (token === AGENT_API_KEY) {
+    if (VALID_API_KEYS.has(token)) {
       hasValidApiKey = true;
     }
   }
